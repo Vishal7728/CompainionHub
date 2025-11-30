@@ -2,6 +2,33 @@
 
 A modern companion matching platform built with React.js and Node.js.
 
+## Project Structure
+
+```
+companionhub/
+├── backend/           # Node.js backend application
+│   ├── app.js         # Main server file
+│   ├── init.js        # Initialization script
+│   ├── package.json   # Backend dependencies
+│   ├── README.md      # Backend documentation
+│   └── uploads/       # File upload directory
+└── frontend/          # React.js frontend application
+    ├── package.json   # Frontend dependencies
+    ├── README.md      # Frontend documentation
+    ├── public/        # Static assets
+    │   ├── index.html
+    │   ├── manifest.json
+    │   └── robots.txt
+    └── src/           # Frontend source code
+        ├── components/
+        ├── pages/
+        ├── services/
+        ├── App.js
+        ├── App.css
+        ├── index.js
+        └── index.css
+```
+
 ## Features
 
 - User authentication and profile management
@@ -35,18 +62,18 @@ A modern companion matching platform built with React.js and Node.js.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/companionhub.git
+   git clone https://github.com/Vishal7728/CompainionHub.git
    ```
 
 2. Install backend dependencies:
    ```bash
-   cd companionhub
+   cd backend
    npm install
    ```
 
 3. Install frontend dependencies:
    ```bash
-   cd frontend
+   cd ../frontend
    npm install
    ```
 
@@ -54,8 +81,8 @@ A modern companion matching platform built with React.js and Node.js.
 
 1. Start the backend server:
    ```bash
-   # From the root directory
-   node app.js
+   # From the backend directory
+   npm start
    ```
 
 2. Start the frontend development server:
@@ -66,7 +93,7 @@ A modern companion matching platform built with React.js and Node.js.
 
 ## Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
+Create a `.env` file in the backend directory with the following variables:
 
 ```
 JWT_SECRET=your_jwt_secret
@@ -83,20 +110,20 @@ EMAIL_PASS=your_email_password
 
 ## Deployment
 
-### GitHub Pages Deployment
+### Backend Deployment
+Deploy the backend to platforms like:
+- Heroku
+- Render
+- Vercel
+- Railway
 
-1. Create a production build of the frontend:
-   ```bash
-   cd frontend
-   npm run build
-   ```
-
-2. Deploy the build folder to your preferred hosting platform.
+### Frontend Deployment
+Deploy the frontend to platforms like:
+- GitHub Pages
+- Vercel
+- Netlify
+- Firebase Hosting
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Author
-
-CompanionHub - A modern companion matching platform
+This project is licensed under the MIT License.
