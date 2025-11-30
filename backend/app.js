@@ -42,9 +42,9 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true, minlength: 6 },
-  phone: { type: String, required: true, unique: true },
-  dateOfBirth: { type: Date, required: true },
-  gender: { type: String, enum: ['male', 'female', 'other'], required: true },
+  phone: { type: String, unique: true },
+  dateOfBirth: { type: Date },
+  gender: { type: String, enum: ['male', 'female', 'other'] },
   profileImage: { publicId: String, url: String },
   role: { type: String, enum: ['user', 'companion', 'admin'], default: 'user' },
   isVerified: { type: Boolean, default: false },
@@ -284,7 +284,7 @@ const generateToken = (userId) => {
 // Auth controller
 const register = async (req, res) => {
   try {
-    const { name, email, password, phone, dateOfBirth, gender } = req.body;
+    const { name, email, password, phone, dateOfBirth, gender, role } = req.body;
 
     const existingUser = await User.findOne({ 
       $or: [{ email }, { phone }] 
@@ -297,14 +297,29 @@ const register = async (req, res) => {
       });
     }
 
-    const user = await User.create({
+    const userData = {
       name,
       email,
       password,
-      phone,
-      dateOfBirth,
-      gender
-    });
+      role: role || 'user'
+    };
+
+    // Only add phone if provided
+    if (phone) {
+      userData.phone = phone;
+    }
+
+    // Only add dateOfBirth if provided
+    if (dateOfBirth) {
+      userData.dateOfBirth = new Date(dateOfBirth);
+    }
+
+    // Only add gender if provided
+    if (gender) {
+      userData.gender = gender;
+    }
+
+    const user = await User.create(userData);
 
     const token = generateToken(user._id);
 
@@ -445,6 +460,48 @@ const updateProfile = async (req, res) => {
       success: true,
       message: 'Profile updated successfully',
       data: user
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+const getCompanions = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const companions = await User.find({
+      role: 'companion',
+      isVerified: true,
+      isActive: true
+    })
+    .select('-password')
+    .limit(limit)
+    .skip(skip)
+    .sort({ 'ratings.average': -1, createdAt: -1 });
+
+    const total = await User.countDocuments({
+      role: 'companion',
+      isVerified: true,
+      isActive: true
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        companions,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -709,6 +766,7 @@ app.post('/api/auth/logout', logout);
 
 app.get('/api/users/profile', authenticate, getProfile);
 app.put('/api/users/profile', authenticate, updateProfile);
+app.get('/api/users/companions', authenticate, getCompanions);
 
 app.post('/api/bookings', authenticate, createBooking);
 app.get('/api/bookings', authenticate, getUserBookings);
